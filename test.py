@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 #encoding: utf8
 
@@ -15,8 +14,10 @@ d=12
 e = b'\OxFF\OxFF\OxFF\OxFF\OxFF\OxFF\OxFF\OXFC'
 # pack
 
-str = struct.pack(">Bh", a,b)
+str = struct.pack(">i",b)
 print (repr(str))
+stru = struct.unpack(">i", str)
+
 
 str1 = struct.pack(">h", c<<4)
 print (repr(str1))
@@ -24,7 +25,7 @@ print (repr(str1))
 str2 = struct.pack(">h", d)
 print (repr(str2))
 
-str3=str1[:6]+str1[3:]
+#str3=str1[:6]+str1[3:] 用移位
 print (repr(str3))
 
 print('length: ', len(str) )          # length:  8
