@@ -1,92 +1,40 @@
 import serial
-
+import motor
 import time
 
-motor_enable_date = b'\OxFF\OxFF\OxFF\OxFF\OxFF\OxFF\OxFF\OXFC'
+motor_id_list = [9]
+for i in  len(motor_id_list):
+    motor[i]=motor(motor_id_list[i])
 
-motor_speed_mode = b'\x02\x00\xC4\xC6'
+s_uart = serial.Serial('com4', 115200)
 
-motor_accdec_set = b'\x0A\x14\x14\x32'
+s_uart.bytesize = 8
 
-motor_speed_set = b'\x06\x00\x88\x8E'
+s_uart.stopbits = 1
 
-motor_status = b'\x80\x00\x80'
+s_uart.parity = "N"
 
-# 设置速度模式02 00 C4 C6
-
-# 设置加减速时间0A 14 14 32
-
-# 设置转速06 00 88 8E
-
-# 使能电机00 00 01 01
-
-# 停机电机 00 00 00 00
+s_can=s_uart
 
 
-s = serial.Serial('com4', 57600)
-
-s.bytesize = 8
-
-s.stopbits = 1
-
-s.parity = "N"
-
-motor_enable(s)
+motor[1].motor_enable(s_uart)
 
 time.sleep(1)
 
-n = s.readline()
+n = s_uart.readline()
 
 if n:
     data = [hex(x) for x in bytes(n)]
 
     print(data)
 
-s.flush()
+s_uart.flush()
 
 # print('ok')
 
 # 关闭 串口
 
-if s.isOpen():
-    s.close()
+if s_uart.isOpen():
+    s_uart.close()
 
 
-def motor_enable(serial):
-    try:
-
-        serial.write(motor_speed_mode)
-
-        serial.write(motor_accdec_set)
-
-        time.sleep(0.1)
-
-        serial.write(motor_speed_set)
-
-        time.sleep(0.1)
-
-        serial.write(motor_enable_date)
-
-        time.sleep(0.1)
-
-        serial.write(motor_status)
-
-        time.sleep(1)
-
-        serial.write(motor_status)
-
-        time.sleep(1)
-
-        serial.write(motor_status)
-
-        time.sleep(1)
-
-        serial.write(motor_status)
-
-        time.sleep(1)
-
-        print('send ok')
-
-    except:
-
-        print('cant write motor_enable')
