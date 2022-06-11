@@ -6,12 +6,15 @@ import sys
 #sys.setdefaultencoding("utf-8")
 
 import struct
+a='0x3e8'
+c=int(a,16)
+
 
 a = 11
 b = 40
 c=20
 d=12
-e = b'\OxFF\OxFF\OxFF\OxFF\OxFF\OxFF\OxFF\OXFC'
+e = b'\xF0\xFF\xFF\xFF\xFF\xFF\xFF\xFC'
 # pack
 
 str = struct.pack(">i",b)
