@@ -3,6 +3,10 @@ import time
 import struct
 import serial
 import threading
+from ctypes import *
+import ctypes
+
+lib=ctypes.CDLL(r"./checksum.dll") 
 
 
 T_LIMIT=100
@@ -61,7 +65,7 @@ class motor():
         self.enable = -3
         self.setzero= -2
 
-        # 设置串口通讯
+        # 设置串口通讯 
         '''
         self.serial_uart = serial.Serial(com1, bps1)
         self.serial_uart.timeout = 0
@@ -134,15 +138,23 @@ class motor():
             kp[i] = np.min([np.max([kp[i], Kp_MIN]), Kp_MAX])
 
             Vdes[i]=Vdes[i]*60/(2*np.pi)
-            report=bytearray(b'\x02\x05')
+            #report=bytearray(b'\x02\x05')
+
             vdata=struct.pack(">i",int(Vdes[i]))
+            #adata=b'\x08' + vdata
 
-            adata=b'\x08' + vdata
-            split=struct.unpack(">ccccc",adata)
 
-            #cksum = hex(self.crc16(split, 5))
-            cksum=self.crc16(split,len(vdata)+1)
-            report=report+adata+struct.pack('>H',cksum)+b'\x03'
+            #cksum=self.crc16(split,len(vdata)+1)
+            lib.packmsg.restype=c_ulonglong
+            pacmsg=lib.packmsg ( c_char_p(vdata),c_char(b'v'),c_int(len(vdata)) )
+            pac=lib.main()
+
+            report=struct.pack(">Q",pacmsg)+b'\x03'
+
+
+            #cksum=struct.pack('>H',ckctype)
+            #report=report+adata+struct.pack('>H',cksum)+b'\x03'
+            print(report)
 
             self.serial_uart.write(report)
             time.sleep(0.1)
@@ -196,8 +208,8 @@ class motor():
     def motor_read(self):
         while True:
             n = self.serial_uart.inWaiting()  # 等待数据的到来，并得到数据的长度
-            if n:  # 如果有数据
-                begin = self.serial_uart.read(1)  # 读取n位数据
+            if n:  # 如果有数�??
+                begin = self.serial_uart.read(1)  # 读取n位数�??
                 if begin=='02':
                     datalen = self.serial_uart.read(1)
                     data=self.serial_uart.read(int(datalen))
