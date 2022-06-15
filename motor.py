@@ -25,6 +25,9 @@ Test_Pos=6.0
 POSITION_ORDER= b"\x02\x02\x0B\x04\x9C\x7E\x03"
 SETZERO_UART=b'\x02\x02\x5F\x01\x0E\xA0\x03'
 
+# Python representation of the C struct re_val
+class ReVal(Structure):
+    _fields_ = [("L1", c_uint64),("L2", c_uint16)]
 
 class motor():
 
@@ -111,10 +114,10 @@ class motor():
 
             vdata=struct.pack(">i",int(Vdes[i]))
 
-            lib.packmsg.restype=c_ulonglong
+            lib.packmsg.restype=ReVal
             pacmsg=lib.packmsg ( c_char_p(vdata),c_char(b'v'),c_int(len(vdata)) )
 
-            report=struct.pack(">Q",pacmsg)+b'\x03'
+            report=struct.pack(">QH",pacmsg.L1,pacmsg.L2)
 
             print(report)
 

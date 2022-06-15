@@ -6,9 +6,13 @@ using namespace std;
 
  extern "C"
 {
-unsigned long long packmsg(unsigned char *buf,char mode, int len);
+struct re_val packmsg(unsigned char *buf,char mode, int len);
 } 
 
+struct re_val {
+    uint64_t L1;
+    uint16_t L2;
+};
 
 
 const unsigned short crc16_tab [] = { 0x0000, 0x1021, 0x2042, 0x3063, 0x4084,
@@ -59,7 +63,7 @@ unsigned short crc16(unsigned char *buf, unsigned int len) {
     }
 return cksum;
 }
-unsigned long long packmsg(unsigned char *buf,char mode, int len){
+struct re_val packmsg(unsigned char *buf,char mode, int len){
     static int point=2;
 
     static unsigned char msg[10]={0x02, (unsigned char)(len+1)};
@@ -85,21 +89,23 @@ unsigned long long packmsg(unsigned char *buf,char mode, int len){
     point++;
     *(msg+point)='\0';
 //早知道不能传指针出去 我就应该直接定义基于longlong的struct堆栈
-    unsigned long long L=0;
+    struct re_val r;
     for (int i=0;i<8;i++){
-        L=msg[i]|(L<<8);
-        cout<<hex<<L<<endl;
+        r.L1=msg[i]|(r.L1<<8);
+        cout<<hex<<r.L1<<endl;
+    }
+    for (int i=8;i<10;i++){
+        r.L2=msg[i]|(r.L2<<8);
+        cout<<hex<<r.L1<<endl;
     }
 
-    return L;
+    return r;
 }
 int main(){
    unsigned char b[4]={0x00,0x00,0x00,0xbe};
     cout<<b;
-    unsigned long long L=packmsg(b,'v',sizeof(b));
-   
-   cout<<L;
-   
+    packmsg(b,'v',sizeof(b));
+
  return 0;
 }
 //g++ -o checksum.dll -shared checksum.cpp 145531359052480133 939548549
