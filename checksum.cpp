@@ -10,8 +10,8 @@ struct re_val packmsg(unsigned char *buf,char mode, int len);
 } 
 
 struct re_val {
-    uint64_t L1;
-    uint16_t L2;
+    uint64_t L1=0;
+    uint16_t L2=0;
 };
 
 
@@ -64,46 +64,38 @@ unsigned short crc16(unsigned char *buf, unsigned int len) {
 return cksum;
 }
 struct re_val packmsg(unsigned char *buf,char mode, int len){
-    static int point=2;
+    struct re_val r;
 
-    unsigned char msg[(len+6)]={0x02, (unsigned char)(len+1)};
+    r.L1=((r.L1|0x02)<<8) | (len+1);
 
     unsigned char ck[1+len]={0x08};
-    if (mode=='v')
-        {
-        *(msg+point)=ck[0];
-        point++;}
-    else cout<<"Mode eror";
 
-    point=ustrcat(msg,buf,point,len);
+    if (mode!='v')
+    cout<<"Mode eror";
 
     //crc16
     ustrcat(ck,buf,1,len);
+
+
+    for(int i=0; i<5 ;i++){
+        r.L1=(r.L1<<8)|ck[i];
+    }
+
     unsigned short ck_int=crc16(ck,len);
 
-    *(msg+point)=(unsigned char)((ck_int>>8)& 0xFF);
-    point++;
-    *(msg+point)=(unsigned char)(ck_int& 0xFF);
-    point++;
-    *(msg+point)={0x03};
-    point++;
-    *(msg+point)='\0';
+    r.L1=(r.L1<<8)|((ck_int>>8)& 0xFF);
+
+    r.L2=r.L2|(ck_int& 0xFF);
+
+    r.L2=(r.L2<<8)| 0x03;
 //早知道不能传指针出去 我就应该直接定义基于longlong的struct堆栈
-    struct re_val r;
-    for (int i=0;i<8;i++){
-        r.L1=msg[i]|(r.L1<<8);
-        cout<<hex<<r.L1<<endl;
-    }
-    for (int i=8;i<10;i++){
-        r.L2=msg[i]|(r.L2<<8);
-        cout<<hex<<r.L2<<endl;
-    }
     return r;
 }
 int main(){
    unsigned char b[4]={0x00,0x00,0x00,0xbe};
-    cout<<b;
-    packmsg(b,'v',sizeof(b));
+    struct re_val r=packmsg(b,'v',sizeof(b));
+    cout<<hex<<r.L1<<endl<<r.L2;
+
 
  return 0;
 }
