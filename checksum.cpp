@@ -66,7 +66,7 @@ return cksum;
 struct re_val packmsg(unsigned char *buf,char mode, int len){
     static int point=2;
 
-    static unsigned char msg[10]={0x02, (unsigned char)(len+1)};
+    unsigned char msg[(len+6)]={0x02, (unsigned char)(len+1)};
 
     unsigned char ck[1+len]={0x08};
     if (mode=='v')
@@ -96,9 +96,8 @@ struct re_val packmsg(unsigned char *buf,char mode, int len){
     }
     for (int i=8;i<10;i++){
         r.L2=msg[i]|(r.L2<<8);
-        cout<<hex<<r.L1<<endl;
+        cout<<hex<<r.L2<<endl;
     }
-
     return r;
 }
 int main(){
