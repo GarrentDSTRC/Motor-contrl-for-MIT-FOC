@@ -39,19 +39,21 @@ class motor():
         self.setzero= -2
 
         # 设置串口通讯 
-        '''
-        self.serial_uart = serial.Serial(com1, bps1)
+
+        self.serial_uart = serial.Serial("com3", bps1)
         self.serial_uart.timeout = 0
         self.serial_uart.bytesize = 8
         self.serial_uart.stopbits = 1
         self.serial_uart.parity = "N"
 
-        self.serial_can = serial.Serial(com2, bps2)
+        '''
+        self.serial_can = serial.Serial("com4", bps2)
         self.serial_can.timeout = 0
         self.serial_can.bytesize = 8
         self.serial_can.stopbits = 1
         self.serial_can.parity = "N"
         '''
+
 
         self.data=[]
         self.crc=[]
@@ -232,10 +234,16 @@ if __name__ == '__main__':
     MotorPara =np.array([ID,Pdes, Vdes,tff,kd,kp])
     MotorPara=np.expand_dims(MotorPara, axis=2)
     #MyMotor[0].serial_uart.write(POSITION_ORDER)1
+    #enable
+
+    MyMotor[0].motor_enable()
+    time.sleep(1)
 
     MyMotor[0].motor_Vctrl(MotorPara)
 
     print(MyMotor[0].data,'\n',MyMotor[0].crc)
+
+    #\x02\x05\x08\x00\x00\x00\xbe\x85\xc3\x03
 
 
 
